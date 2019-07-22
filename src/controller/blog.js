@@ -1,45 +1,72 @@
+const { exec } = require('../db/mysql')
+
 const getBlogList = (author, keyword) => {
-  return [
-    {
-      id: 1,
-      title: '标题1',
-      content: '内容1',
-      createTime: new Date(),
-      author: 'leez'
-    },{
-      id: 2,
-      title: '标题2',
-      content: '内容2',
-      createTime: new Date(),
-      author: 'leez'
-    }
-  ]
+  let sql = `select * from blogs where 1=1 `
+  if (author) {
+    sql += `and author = '${author}' `
+  }
+  if (keyword) {
+    sql += `and title like '%${keyword}%' `
+  }
+  sql += 'order by createtime desc;'
+  return exec(sql)
 }
 
 getBlogDetail = (id) => {
-  return {
-    id: 1,
-    title: '标题1',
-    content: '内容1',
-    createTime: new Date(),
-    author: 'leez'
-  }
+  const sql = `select * from blogs where id=${id}`
+  return exec(sql)
 }
 
 addBlog = (blogData = {}) => {
-  return {
-    id: 3,
-    title: blogData.title,
-    content: blogData.content
-  }
+  const { title, content, author, createtime } = blogData
+  const sql = `insert into blogs (title, content, createtime, author)
+              values ('${title}', '${content}', '${createtime}', '${author}')`
+  return exec(sql).then(insertData => {
+    // console.log(insertData)
+    // {
+    //   fieldCount: 0,
+    //   affectedRows: 1,
+    //   insertId: 3,
+    //   serverStatus: 2,
+    //   warningCount: 0,
+    //   message: '',
+    //   protocol41: true,
+    //   changedRows: 0 }
+    return {
+      id: insertData.insertId
+    }
+  })
 }
 
 updateBlog = (id, blogData = {}) => {
-  return true
+  const { title, content } = blogData
+  const sql = `update blogs set title='${title}', content='${content}' where id =${id}`
+  return exec(sql).then(updateData => {
+    // console.log(updateData)
+    // {
+    //   fieldCount: 0,
+    //   affectedRows: 1,
+    //   insertId: 0,
+    //   serverStatus: 2,
+    //   warningCount: 0,
+    //   message: '(Rows matched: 1  Changed: 1  Warnings: 0',
+    //   protocol41: true,
+    //   changedRows: 1 }
+    if (updateData.affectedRows > 0) {
+      return true
+    }
+    return false
+  })
 }
 
-deleteBlog = (id) => {
-  return true
+deleteBlog = (id, author) => {
+  const sql = `delete from blogs where id =${id} and author='${author}'`
+  return exec(sql).then(deleteData => {
+    if (deleteData.affectedRows > 0) {
+      return true
+    }
+    return false
+  })
 }
 
 module.exports = {
