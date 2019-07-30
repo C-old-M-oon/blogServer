@@ -33,4 +33,4 @@ if (env === 'production') {
   }
 }
 
-module.exports = { MYSQL_CONF }
+module.exports = { MYSQL_CONF, REDIS_CONF }

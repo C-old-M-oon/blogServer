@@ -1,6 +1,7 @@
 const querystring = require('querystring')
 const handleBlogRouter = require('./src/router/blog')
 const handleUserRouter = require('./src/router/user')
+const { set, get } = require('./src/db/redis')
 
 // 设置cookie过期时间为1天
 const getCookieExpires = () => {
@@ -9,8 +10,8 @@ const getCookieExpires = () => {
   return d.toGMTString()
 }
 
-// session数据
-const SESSION_DATA = {}
+// session数据 session存在server端
+// const SESSION_DATA = {}
 
 // 处理post数据
 const getPostData = (req) => {
@@ -62,20 +63,35 @@ const serverHandle = (req, res) => {
   // 解析session
   let needSetCookie = false
   let userId = req.cookie.userid
-  if (userId) {
-    if (!SESSION_DATA[userId]) {
-      SESSION_DATA[userId] = {}
-    }
-    req.session = SESSION_DATA[userId]
-  } else {
-    needSetCookie = true
-    userId = `${(new Date().getTime())}_${Math.random()}`
-    SESSION_DATA[userId] = {}
-  }
-  req.session = SESSION_DATA[userId]
+  // server端存用户session信息
+  // if (userId) {
+  //   if (!SESSION_DATA[userId]) {
+  //     SESSION_DATA[userId] = {}
+  //   }
+  //   req.session = SESSION_DATA[userId]
+  // } else {
+  //   needSetCookie = true
+  //   userId = `${(new Date().getTime())}_${Math.random()}`
+  //   SESSION_DATA[userId] = {}
+  // }
+  // req.session = SESSION_DATA[userId]
 
-  // 处理post data
-  getPostData(req).then(postData => {
+  // redis存用户session
+  if (!userId) {
+    needSetCookie = true
+    userId= `${(new Date().getTime())}_${Math.random()}`
+    set(userId, {}) // 如果没有登陆，初始化session数据
+  }
+  req.sessionId = userId // 如果已登陆，userId设置到req里面
+  get(req.sessionId).then(sessionData => {
+    if (!sessionData) {
+      set(req.sessionId, {})
+      req.session = {}
+    } else {
+      req.session = sessionData
+    }
+    return getPostData(req)
+  }).then(postData => {
     req.body = postData
     // 处理路由
     const blogResult = handleBlogRouter(req, res)
