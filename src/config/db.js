@@ -7,7 +7,7 @@ if (env === 'dev') {
     host: 'localhost',
     user: 'root',
     password: '123456',
-    database: 'blogserver'
+    database: 'myblog'
   }
 }
 
