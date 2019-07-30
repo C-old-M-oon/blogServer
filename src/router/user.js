@@ -1,5 +1,6 @@
 const { userLogin } = require('../controller/user')
 const { SuccessModel, ErrorModel } = require('../model/resModel')
+const { set } = require('../db/redis')
 
 // // 设置cookie过期时间为1天
 // const getCookieExpires = () => {
@@ -12,9 +13,9 @@ const handleUserRouter = (req, res) => {
   const method = req.method
 
   // 登陆
-  if (method === 'GET' && req.path === '/api/user/login') {
-    // const { username = '', password = '' } = req.body // POST请求获取数据
-    const { username = '', password = '' } = req.query // get请求获取数据
+  if (method === 'POST' && req.path === '/api/user/login') {
+    const { username = '', password = '' } = req.body // POST请求获取数据
+    // const { username = '', password = '' } = req.query // get请求获取数据
     const result = userLogin(username, password)
     return result.then(loginData => {
       if (loginData.username) {
@@ -22,6 +23,8 @@ const handleUserRouter = (req, res) => {
         // res.setHeader('Set-Cookie', `username=${loginData.username}; path=/; httpOnly; expires=${getCookieExpires()}`)
         req.session.username = loginData.username
         req.session.realname = loginData.realname
+        // 同步到redis
+        set(req.sessionId, req.session)
         // console.log(req.session)
         return new SuccessModel()
       } else {
