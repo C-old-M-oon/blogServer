@@ -11,12 +11,15 @@
 <body>
   
   <div id="app">
+    <div class="title" @click='goToUser' style="text-align: right">用户中心</div>
     <div>博客列表</div>
+    <button v-if="author" @click='backAll'>返回</button>
     <div class="blog-wrapper">
       <div class="blog-item" v-for="(item, index) in blogList" :key="index">
-        <p v-text="item.title"></p>
-        <p><span v-text="item.author"></span></p>
+        <b v-text="item.title" @click='getDetail(item.id)'></b>
+        <p>作者：<span v-text="item.author" @click='goToAuthor(item.author)'></span> 创建时间：<span v-text="item.createtime"></span></p>
         <div class="content" v-text="item.content"></div>
+        </br>
       </div>
     </div>
   </div>
@@ -25,8 +28,30 @@
     const app = new Vue({
       el: '#app',
       data: {
-        message: 'hello vue',
-        blogList: []
+        blogList: [],
+        author: '',
+      },
+      methods: {
+        goToAuthor(author) {
+          this.author = author
+          $.get(`/api/blog/list?author=${author}`, data => {
+            const relust = data.data
+            this.blogList = relust
+          })
+        },
+        backAll() {
+          this.author = ''
+          $.get('/api/blog/list', data => {
+            const relust = data.data
+            this.blogList = relust
+          })
+        },
+        getDetail(id) {
+          window.location = `detail.html?id=${id}`
+        },
+        goToUser() {
+          window.location = 'admin.html'
+        }
       },
       mounted() {
         // console.log($)

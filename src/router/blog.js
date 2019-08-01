@@ -14,9 +14,18 @@ const handleBlogRouter = (req, res) => {
   const method = req.method
   // 获取列表
   if (method === 'GET' && req.path === '/api/blog/list') {
-    const { author = '', keyword = '' } = req.query
+    let { author = '', keyword = '', isadmin } = req.query
     // const listData = getBlogList(author, keyword)
     // return new SuccessModel(listData)
+    if (isadmin) {
+      // 如果是已登陆账户，直接查询管理员自己信息
+      const loginCheckResult = loginCheck(req)
+      if (loginCheckResult) {
+        // 未登陆
+        return loginCheckResult
+      }
+      author = req.session.username // 如果已登陆，直接从session里面获取作者名
+    }
     const result = getBlogList(author, keyword)
     return result.then(listData => {
       return new SuccessModel(listData)
@@ -60,6 +69,7 @@ const handleBlogRouter = (req, res) => {
     if (loginCheckResult) {
       return loginCheckResult
     }
+    const { id } = req.body
     const result = updateBlog(id, req.body)
     return result.then(val => {
       if (val) {
@@ -71,11 +81,12 @@ const handleBlogRouter = (req, res) => {
   }
 
   // 删除文章
-  if (method === 'DELETE' && req.path === '/api/blog/delete') {
+  if (method === 'POST' && req.path === '/api/blog/delete') {
     const loginCheckResult = loginCheck(req)
     if (loginCheckResult) {
       return loginCheckResult
     }
+    const { id } = req.body
     const author = req.session.username
     const result = deleteBlog(id, author)
     return result.then(val => {

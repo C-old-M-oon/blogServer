@@ -34,6 +34,20 @@ const handleUserRouter = (req, res) => {
     // return result ? new SuccessModel(result) : new ErrorModel(result)
   }
 
+  // 退出登陆
+  if (method === 'GET' && req.path === '/api/user/loginOut') {
+    const { username } = req.session
+    req.session.username = ''
+    req.session.realname  = ''
+    return Promise.resolve().then(() => {
+      if (username) {
+        // 如果有用户名，则先清除redis缓存，没有则直接返回成功
+        set(req.sessionId, req.session)
+      }
+      return new SuccessModel()
+    })
+  }
+
   // 登陆验证测试
   if (method === 'GET' && req.path === '/api/user/login-test') {
     if (req.session.username) {
