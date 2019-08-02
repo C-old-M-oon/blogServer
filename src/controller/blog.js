@@ -12,8 +12,11 @@ const getBlogList = (author, keyword) => {
   return exec(sql)
 }
 
-getBlogDetail = (id) => {
-  const sql = `select * from blogs where id=${id}`
+getBlogDetail = (id, username) => {
+  let sql = `select * from blogs where 1=1 and id = ${id} `
+  if (username) {
+    sql += `and author = '${username}'`
+  }
   return exec(sql)
 }
 

@@ -34,8 +34,12 @@ const handleBlogRouter = (req, res) => {
 
   // 获取详情
   if (method === 'GET' && req.path === '/api/blog/detail') {
-    const { id = '' } = req.query
-    const result = getBlogDetail(id)
+    const { id = '', isadmin } = req.query
+    let username = ''
+    if (isadmin) {
+      username = req.session.username
+    }
+    const result = getBlogDetail(id, username)
     return result.then(blogDetail => {
       return new SuccessModel(blogDetail)
     })

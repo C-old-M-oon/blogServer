@@ -67,7 +67,7 @@
           id = query.split('=')[1]
         }
         if (id) {
-          $.get(`/api/blog/detail?id=${id}`, data => {
+          $.get(`/api/blog/detail?id=${id}&isadmin=1`, data => {
             if (data.code === 0) {
               const blog = data.data[0]
               const { title, content, id } = blog
