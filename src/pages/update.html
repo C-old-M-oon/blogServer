@@ -1,13 +1,15 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>编辑博客</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="https://cdn.jsdelivr.net/npm/vue"></script>
-  <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.0.js" ></script>
+  <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.0.js"></script>
 </head>
+
 <body>
   <div class="title">编辑页</div>
   <div id="content">
@@ -51,8 +53,7 @@
             }),
             success: data => {
               if (data.code === 0) {
-                const _id = this.id && this.id || data.data.id
-                window.location = `detail.html?id=${_id}`
+                window.location = `admin.html`
               } else {
                 alert('操作失败！')
               }
@@ -81,4 +82,5 @@
     })
   </script>
 </body>
+
 </html>
